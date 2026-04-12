@@ -1,0 +1,5 @@
+{
+  "name": "Solana Wallet Time Machine",
+  "description": "A deep dive into your Solana wallet history with parsed transactions, PnL analysis, and AI-powered behavioral insights.",
+  "requestFramePermissions": []
+}
