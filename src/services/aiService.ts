@@ -1,6 +1,7 @@
-import { GoogleGenAI, Type } from "@google/genai";
-
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+// SECURITY FIX: All Gemini API calls are now proxied through /api/ai/analyze
+// on the Express server (server.ts). The API key NEVER reaches the browser.
+// Previously: GoogleGenAI was instantiated here with process.env.GEMINI_API_KEY
+// which Vite's `define` would inline into the client bundle.
 
 export interface AIAnalysis {
   strengths: string[];
@@ -13,63 +14,22 @@ export async function analyzeWalletBehavior(
   pnl: any,
   missedGains: any[]
 ): Promise<AIAnalysis> {
-  const prompt = `
-    Analyze the following Solana wallet data and provide a behavioral report card.
-    
-    Trade History Summary:
-    ${JSON.stringify(transactions.slice(0, 20), null, 2)}
-    
-    PnL Summary:
-    Win Rate: ${pnl?.winRate}%
-    Total Assets: ${Object.keys(pnl?.tokens || {}).length}
-    
-    Missed Opportunities (Fumbles):
-    ${JSON.stringify(missedGains, null, 2)}
-    
-    Provide:
-    1. 3 distinct strengths of this trader.
-    2. 3 distinct weaknesses or areas for improvement.
-    3. A summary paragraph explaining their overall "vibe" as a trader (e.g., "The Diamond Handed Voyager" or "The Paper Handed Panic Seller").
-    
-    Keep the tone simple, direct, and slightly technical but accessible for retail users.
-  `;
+  const response = await fetch('/api/ai/analyze', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      transactions: transactions.slice(0, 20), // limit payload
+      pnlSummary: {
+        winRate: pnl?.winRate,
+        totalAssets: Object.keys(pnl?.tokens || {}).length,
+      },
+      missedGains,
+    }),
+  });
 
-  try {
-    const response = await ai.models.generateContent({
-      model: "gemini-3.1-pro-preview",
-      contents: prompt,
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            strengths: {
-              type: Type.ARRAY,
-              items: { type: Type.STRING },
-              description: "3 strengths of the trader"
-            },
-            weaknesses: {
-              type: Type.ARRAY,
-              items: { type: Type.STRING },
-              description: "3 weaknesses of the trader"
-            },
-            summary: {
-              type: Type.STRING,
-              description: "A summary paragraph of the trader's behavior"
-            }
-          },
-          required: ["strengths", "weaknesses", "summary"]
-        }
-      }
-    });
-
-    return JSON.parse(response.text);
-  } catch (error) {
-    console.error("AI Analysis Error:", error);
-    return {
-      strengths: ["Data analysis unavailable"],
-      weaknesses: ["AI processing failed"],
-      summary: "The Time Machine's AI core is currently offline. Please try again later."
-    };
+  if (!response.ok) {
+    throw new Error(`AI analysis failed: ${response.status}`);
   }
+
+  return response.json();
 }
