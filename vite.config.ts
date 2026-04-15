@@ -4,10 +4,13 @@ import path from 'path';
 import { defineConfig, loadEnv } from 'vite';
 
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, '.', '');
+  // Load .env.* files for the selected mode. Even if we don't reference
+  // individual vars here, calling loadEnv ensures Vite picks them up.
+  loadEnv(mode, '.', '');
+
   return {
     plugins: [react(), tailwindcss()],
-   
+
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
