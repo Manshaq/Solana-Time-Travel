@@ -285,7 +285,11 @@ async function startServer() {
         },
       });
 
-      return res.json(JSON.parse(response.text ?? "{}"));
+      const text = response.text;
+      if (!text) {
+        throw new Error("Empty response from AI model");
+      }
+      return res.json(JSON.parse(text));
     } catch (error: any) {
       console.error("Gemini API Error:", error.message);
       return res.status(502).json({
