@@ -149,7 +149,7 @@ export default function Dashboard() {
           </div>
           <div className="text-right">
             <p className="technical-header">Net Worth (USD)</p>
-            <p className="text-xl sm:text-2xl font-mono font-bold">${totalValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+            <p className="text-xl sm:text-2xl font-mono font-bold">${Number(totalValue || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
           </div>
         </div>
       </header>
@@ -301,17 +301,17 @@ export default function Dashboard() {
                     <div className="grid grid-cols-2 gap-4 pt-2 border-t border-red-500/10">
                       <div>
                         <p className="text-[9px] uppercase opacity-40">Sell Price</p>
-                        <p className="text-xs font-mono">${gain.sell_price.toLocaleString(undefined, { maximumSignificantDigits: 4 })}</p>
+                        <p className="text-xs font-mono">${Number(gain.sell_price || 0).toLocaleString(undefined, { maximumSignificantDigits: 4 })}</p>
                       </div>
                       <div>
                         <p className="text-[9px] uppercase opacity-40">Current Price</p>
-                        <p className="text-xs font-mono">${gain.current_price.toLocaleString(undefined, { maximumSignificantDigits: 4 })}</p>
+                        <p className="text-xs font-mono">${Number(gain.current_price || 0).toLocaleString(undefined, { maximumSignificantDigits: 4 })}</p>
                       </div>
                     </div>
                     <div className="pt-2">
                       <p className="text-[9px] uppercase opacity-40">Potential Profit Missed</p>
                       <p className="text-lg font-mono font-bold text-red-500">
-                        ${gain.missed_profit.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                        ${Number(gain.missed_profit || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}
                       </p>
                     </div>
                   </div>
@@ -337,13 +337,13 @@ export default function Dashboard() {
                 <div key={item.address} className="technical-cell hover-invert group">
                   <div className="flex justify-between items-start">
                     <div>
-                      <p className="technical-value font-bold">{item.symbol}</p>
-                      <p className="text-[10px] uppercase tracking-widest opacity-40 group-hover:opacity-100">{item.name}</p>
+                      <p className="technical-value font-bold">{item.symbol || "UNKNOWN"}</p>
+                      <p className="text-[10px] uppercase tracking-widest opacity-40 group-hover:opacity-100">{item.name || "Unknown Token"}</p>
                     </div>
                     <div className="text-right">
-                      <p className="technical-value">${item.valueUsd.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
+                      <p className="technical-value">${Number(item.valueUsd || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
                       <p className="text-[10px] font-mono opacity-40 group-hover:opacity-100">
-                        {item.balance.toLocaleString(undefined, { maximumSignificantDigits: 6 })}
+                        {Number(item.balance || 0).toLocaleString(undefined, { maximumSignificantDigits: 6 })}
                       </p>
                     </div>
                   </div>
