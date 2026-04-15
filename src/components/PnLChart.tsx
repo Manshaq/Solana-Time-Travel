@@ -68,8 +68,8 @@ export function PnLChart({ transactions, loading }: PnLChartProps) {
     <div className="h-[300px] w-full bg-[var(--foreground)]/5 border border-[var(--line)] p-4">
       <div className="flex justify-between items-center mb-4">
         <p className="technical-header">Cumulative Performance (Simulated)</p>
-        <p className={`text-xs font-mono ${chartData[chartData.length - 1]?.pnl >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-          {chartData[chartData.length - 1]?.pnl >= 0 ? '+' : ''}{chartData[chartData.length - 1]?.pnl.toFixed(2)}%
+        <p className={`text-xs font-mono ${Number(chartData[chartData.length - 1]?.pnl || 0) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+          {Number(chartData[chartData.length - 1]?.pnl || 0) >= 0 ? '+' : ''}{Number(chartData[chartData.length - 1]?.pnl || 0).toFixed(2)}%
         </p>
       </div>
       <ResponsiveContainer width="100%" height="100%">

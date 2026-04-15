@@ -145,7 +145,7 @@ export default function Dashboard() {
         <div className="flex gap-4 sm:gap-8 w-full md:w-auto justify-between md:justify-end">
           <div className="text-left md:text-right">
             <p className="technical-header">Win Rate</p>
-            <p className="text-xl sm:text-2xl font-mono font-bold text-green-500">{loading ? <Skeleton className="h-6 w-16 ml-auto" /> : `${pnl?.winRate.toFixed(1)}%`}</p>
+            <p className="text-xl sm:text-2xl font-mono font-bold text-green-500">{loading ? <Skeleton className="h-6 w-16 ml-auto" /> : `${Number(pnl?.winRate || 0).toFixed(1)}%`}</p>
           </div>
           <div className="text-right">
             <p className="technical-header">Net Worth (USD)</p>
@@ -295,7 +295,7 @@ export default function Dashboard() {
                         <p className="text-[10px] uppercase tracking-widest opacity-40">Sold too early</p>
                       </div>
                       <Badge variant="outline" className="rounded-none border-red-500 text-red-500 text-[8px] uppercase">
-                        +{gain.percentage.toFixed(0)}% Since Sell
+                        +{Number(gain.percentage || 0).toFixed(0)}% Since Sell
                       </Badge>
                     </div>
                     <div className="grid grid-cols-2 gap-4 pt-2 border-t border-red-500/10">

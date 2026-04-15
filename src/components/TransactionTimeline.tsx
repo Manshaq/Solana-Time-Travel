@@ -166,13 +166,13 @@ export function TransactionTimeline({ transactions, loading, missedGains = [] }:
                   <TableCell className="technical-value text-[10px]">
                     {tx.type === "swap" ? (
                       <div className="flex flex-col">
-                        <span className="text-red-500">-{tx.amount_in.toFixed(4)} {tx.symbol_in}</span>
-                        <span className="text-green-500">+{tx.amount_out.toFixed(4)} {tx.symbol_out}</span>
+                        <span className="text-red-500">-{Number(tx.amount_in || 0).toFixed(4)} {tx.symbol_in}</span>
+                        <span className="text-green-500">+{Number(tx.amount_out || 0).toFixed(4)} {tx.symbol_out}</span>
                       </div>
-                    ) : tx.amount_in > 0 ? (
-                      <span className="text-red-500">-{tx.amount_in.toFixed(4)} {tx.symbol_in || "SOL"}</span>
+                    ) : (tx.amount_in || 0) > 0 ? (
+                      <span className="text-red-500">-{Number(tx.amount_in || 0).toFixed(4)} {tx.symbol_in || "SOL"}</span>
                     ) : (
-                      <span className="text-green-500">+{tx.amount_out.toFixed(4)} {tx.symbol_out || "SOL"}</span>
+                      <span className="text-green-500">+{Number(tx.amount_out || 0).toFixed(4)} {tx.symbol_out || "SOL"}</span>
                     )}
                   </TableCell>
                   <TableCell className="text-right">

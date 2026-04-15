@@ -76,8 +76,15 @@ export default function Home() {
               <Input
                 value={address}
                 onChange={(e) => {
-                  setAddress(e.target.value);
+                  const val = e.target.value;
+                  setAddress(val);
                   if (error) setError(null);
+                  
+                  // Auto-submit if a valid address is pasted
+                  const trimmed = val.trim();
+                  if (trimmed.length >= 32 && trimmed.length <= 44 && validateSolanaAddress(trimmed)) {
+                    navigate(`/dashboard/${trimmed}`);
+                  }
                 }}
                 placeholder="Enter Wallet Address..."
                 className={`h-12 sm:h-14 bg-[var(--background)]/80 backdrop-blur-sm border-[var(--line)] rounded-none font-mono text-xs sm:text-sm focus-visible:ring-0 focus-visible:ring-offset-0 ${
