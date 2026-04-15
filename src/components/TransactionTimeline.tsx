@@ -101,7 +101,7 @@ export function TransactionTimeline({ transactions, loading, missedGains = [] }:
     if (tx.type === "nft") {
       return <span className="font-bold">NFT Interaction</span>;
     }
-    return <span className="font-bold uppercase">{tx.type.replace(/_/g, ' ')}</span>;
+    return <span className="font-bold uppercase">{(tx.type || "unknown").replace(/_/g, ' ')}</span>;
   };
 
   const getIcon = (tx: Transaction) => {
@@ -182,7 +182,7 @@ export function TransactionTimeline({ transactions, loading, missedGains = [] }:
                       rel="noreferrer"
                       className="inline-flex items-center technical-value text-[10px] opacity-40 hover:opacity-100"
                     >
-                      {tx.signature.slice(0, 6)}...{tx.signature.slice(-4)}
+                      {(tx.signature || "UNKNOWN_SIG").slice(0, 6)}...{(tx.signature || "").slice(-4)}
                       <ExternalLink className="w-3 h-3 ml-1" />
                     </a>
                   </TableCell>
