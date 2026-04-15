@@ -21,6 +21,16 @@ const SOLANA_ADDRESS_REGEX = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
 const MAX_TOKEN_LIST_SIZE = 50;
 
 async function startServer() {
+  // Validate required environment variables before starting
+  const requiredEnvVars = ['HELIUS_API_KEY', 'BIRDEYE_API_KEY', 'GEMINI_API_KEY'];
+  const missingVars = requiredEnvVars.filter(v => !process.env[v]);
+  if (missingVars.length > 0) {
+    console.error(`❌ Missing required environment variables: ${missingVars.join(', ')}`);
+    console.error('Please set them in your .env file or environment before starting the server.');
+    process.exit(1);
+  }
+  console.log('✅ All required environment variables configured.');
+
   const app = express();
   const PORT = 3000;
 
@@ -97,18 +107,25 @@ async function startServer() {
   // ---------------------------------------------------------------
   // Helius Parsed Transactions Proxy
   // ---------------------------------------------------------------
-  app.get("/api/wallet/transactions", async (req, res) => {
+  app.get("/api/wallet/transactions", async (req, res): Promise<void> => {
     const { address } = req.query;
     if (!address || typeof address !== "string" || !SOLANA_ADDRESS_REGEX.test(address)) {
-      return res.status(400).json({ error: "Invalid Solana address format" });
+      res.status(400).json({ error: "Invalid Solana address format" });
+      return;
     }
 
     const cacheKey = `tx_${address}`;
     const cachedData = cache.get(cacheKey);
-    if (cachedData) return res.json(cachedData);
+    if (cachedData) {
+      res.json(cachedData);
+      return;
+    }
 
     const HELIUS_KEY = process.env.HELIUS_API_KEY;
-    if (!HELIUS_KEY) return res.status(500).json({ error: "System configuration error" });
+    if (!HELIUS_KEY) {
+      res.status(500).json({ error: "System configuration error" });
+      return;
+    }
 
     try {
       const response = await axios.get(
@@ -130,15 +147,19 @@ async function startServer() {
   // ---------------------------------------------------------------
   // Birdeye Portfolio Proxy
   // ---------------------------------------------------------------
-  app.get("/api/wallet/portfolio", async (req, res) => {
+  app.get("/api/wallet/portfolio", async (req, res): Promise<void> => {
     const { address } = req.query;
     if (!address || typeof address !== "string" || !SOLANA_ADDRESS_REGEX.test(address)) {
-      return res.status(400).json({ error: "Invalid Solana address format" });
+      res.status(400).json({ error: "Invalid Solana address format" });
+      return;
     }
 
     const cacheKey = `port_${address}`;
     const cachedData = cache.get(cacheKey);
-    if (cachedData) return res.json(cachedData);
+    if (cachedData) {
+      res.json(cachedData);
+      return;
+    }
 
     try {
       const response = await axios.get(`https://public-api.birdeye.so/v1/wallet/token_list`, {
@@ -160,29 +181,35 @@ async function startServer() {
   // ---------------------------------------------------------------
   // Birdeye Multi-Price Proxy
   // ---------------------------------------------------------------
-  app.get("/api/token/prices", async (req, res) => {
+  app.get("/api/token/prices", async (req, res): Promise<void> => {
     const { list } = req.query;
     if (!list || typeof list !== "string") {
-      return res.status(400).json({ error: "List of addresses is required" });
+      res.status(400).json({ error: "List of addresses is required" });
+      return;
     }
 
     const addresses = list.split(",");
 
     // SECURITY FIX: Enforce maximum list size to prevent DoS / cost amplification.
     if (addresses.length > MAX_TOKEN_LIST_SIZE) {
-      return res.status(400).json({
+      res.status(400).json({
         error: `Address list too long. Maximum ${MAX_TOKEN_LIST_SIZE} addresses allowed.`,
       });
+      return;
     }
 
     const allValid = addresses.every((addr) => SOLANA_ADDRESS_REGEX.test(addr.trim()));
     if (!allValid) {
-      return res.status(400).json({ error: "One or more invalid addresses in list" });
+      res.status(400).json({ error: "One or more invalid addresses in list" });
+      return;
     }
 
     const cacheKey = `prices_${list}`;
     const cachedData = cache.get(cacheKey);
-    if (cachedData) return res.json(cachedData);
+    if (cachedData) {
+      res.json(cachedData);
+      return;
+    }
 
     try {
       const response = await axios.get(`https://public-api.birdeye.so/v1/token/multi_price`, {
@@ -258,7 +285,11 @@ async function startServer() {
         },
       });
 
-      return res.json(JSON.parse(response.text));
+      const text = response.text;
+      if (!text) {
+        throw new Error("Empty response from AI model");
+      }
+      return res.json(JSON.parse(text));
     } catch (error: any) {
       console.error("Gemini API Error:", error.message);
       return res.status(502).json({
@@ -287,7 +318,10 @@ async function startServer() {
   }
 
   app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+    const mode = process.env.NODE_ENV || 'development';
+    console.log(`🚀 Server running in ${mode} mode on http://localhost:${PORT}`);
+    console.log(`📊 Cache TTL: 5 minutes`);
+    console.log(`🔒 Security: Helmet + CORS + Rate Limiting enabled`);
   });
 }
 
