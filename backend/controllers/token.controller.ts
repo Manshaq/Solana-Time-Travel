@@ -1,6 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import { getDexPairByAddress, getDexTokenMarket, searchDexPairs } from "../services/dexscreener.service";
 import { AppError } from "../utils/errors";
+import { logger } from "../utils/logger";
 
 export async function getTokenMarketController(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
@@ -20,7 +21,8 @@ export async function getTokenMarketController(req: Request, res: Response, next
         dexName: market.dexName,
       },
     });
-  } catch {
+  } catch (error) {
+    logger.error("token_market_failed", { error: error instanceof Error ? error.message : "unknown" });
     next(new AppError("Failed to fetch market data", 502, "MARKET_FETCH_ERROR"));
   }
 }
@@ -34,7 +36,8 @@ export async function searchTokenMarketController(req: Request, res: Response, n
     }
     const pairs = await searchDexPairs(query);
     res.json({ data: { items: pairs } });
-  } catch {
+  } catch (error) {
+    logger.error("token_search_failed", { error: error instanceof Error ? error.message : "unknown" });
     next(new AppError("Failed to search dexscreener", 502, "DEX_SEARCH_ERROR"));
   }
 }
@@ -48,7 +51,8 @@ export async function getPairMarketController(req: Request, res: Response, next:
       return;
     }
     res.json({ data: pair });
-  } catch {
+  } catch (error) {
+    logger.error("pair_market_failed", { error: error instanceof Error ? error.message : "unknown" });
     next(new AppError("Failed to fetch pair market", 502, "PAIR_FETCH_ERROR"));
   }
 }

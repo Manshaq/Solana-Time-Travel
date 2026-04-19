@@ -13,12 +13,14 @@ export function errorHandler(
   _next: NextFunction,
 ): void {
   const appError = error instanceof AppError ? error : new AppError("Internal server error");
+  const originalMessage = error instanceof Error ? error.message : "unknown_error";
   logger.error("request_failed", {
     method: req.method,
     path: req.path,
     statusCode: appError.statusCode,
     code: appError.code,
     message: appError.message,
+    originalMessage,
   });
   res.status(appError.statusCode).json({
     error: appError.message,

@@ -45,7 +45,13 @@ export function buildTimeline(transactions: ParsedTransaction[]): TimelineEvent[
     if (tx.type === "swap") {
       action = `Swapped ${tx.symbol_in || "TOKEN"} → ${tx.symbol_out || "TOKEN"}`;
     } else if (tx.type === "transfer") {
-      action = tx.amount_in > 0 ? `Sent ${tx.symbol_in || "TOKEN"}` : `Received ${tx.symbol_out || "TOKEN"}`;
+      if (tx.amount_in > 0) {
+        action = `Sent ${tx.symbol_in || "TOKEN"}`;
+      } else if (tx.amount_out > 0) {
+        action = `Received ${tx.symbol_out || "TOKEN"}`;
+      } else {
+        action = "Transfer";
+      }
     }
     return {
       signature: tx.signature,

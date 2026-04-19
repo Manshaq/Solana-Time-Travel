@@ -46,14 +46,19 @@ export async function getTokenPrices(mints: string[]): Promise<Record<string, nu
       jupiterPrices = {};
     }
 
-    await Promise.all(
-      missing.map(async (mint) => {
-        const jPrice = jupiterPrices[mint] || 0;
-        const price = jPrice > 0 ? jPrice : (await getDexTokenPrice(mint)) || 0;
-        result[mint] = price;
-        priceCache.set(`price:${mint}`, price, 60);
-      }),
-    );
+    // Limit fallback fan-out to reduce burst pressure on Dexscreener rate limits.
+    const BATCH_SIZE = 5;
+    for (let i = 0; i < missing.length; i += BATCH_SIZE) {
+      const batch = missing.slice(i, i + BATCH_SIZE);
+      await Promise.all(
+        batch.map(async (mint) => {
+          const jPrice = jupiterPrices[mint] || 0;
+          const price = jPrice > 0 ? jPrice : (await getDexTokenPrice(mint)) || 0;
+          result[mint] = price;
+          priceCache.set(`price:${mint}`, price, 60);
+        }),
+      );
+    }
   }
 
   return result;

@@ -1,4 +1,4 @@
-import { txCache } from "../utils/cache";
+import { rpcCache } from "../utils/cache";
 import { AppError } from "../utils/errors";
 import { requestWithRetry } from "../utils/http";
 
@@ -78,20 +78,20 @@ async function rpcCall<T>(method: string, params: unknown[]): Promise<T> {
 
 export async function getSignaturesForAddress(address: string, limit: number): Promise<SignatureInfo[]> {
   const cacheKey = `rpc:sig:${address}:${limit}`;
-  const cached = txCache.get<SignatureInfo[]>(cacheKey);
+  const cached = rpcCache.get<SignatureInfo[]>(cacheKey);
   if (cached) return cached;
 
   const signatures = await rpcCall<SignatureInfo[]>("getSignaturesForAddress", [
     address,
     { limit },
   ]);
-  txCache.set(cacheKey, signatures, 20);
+  rpcCache.set(cacheKey, signatures, 20);
   return signatures;
 }
 
 export async function getTransaction(signature: string): Promise<ParsedTransactionWithMeta | null> {
   const cacheKey = `rpc:tx:${signature}`;
-  const cached = txCache.get<ParsedTransactionWithMeta | null>(cacheKey);
+  const cached = rpcCache.get<ParsedTransactionWithMeta | null>(cacheKey);
   if (cached !== undefined) return cached;
 
   const tx = await rpcCall<ParsedTransactionWithMeta | null>("getTransaction", [
@@ -102,7 +102,7 @@ export async function getTransaction(signature: string): Promise<ParsedTransacti
       commitment: "confirmed",
     },
   ]);
-  txCache.set(cacheKey, tx, 30);
+  rpcCache.set(cacheKey, tx, 30);
   return tx;
 }
 
