@@ -17,8 +17,8 @@ interface Transaction {
   type: string;
   amount_in: number;
   amount_out: number;
-  symbol_in?: string;
-  symbol_out?: string;
+  symbol_in?: string | null;
+  symbol_out?: string | null;
 }
 
 interface PnLChartProps {

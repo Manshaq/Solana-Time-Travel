@@ -6,5 +6,5 @@ export const STABLE_MINTS = new Set([
   "Es9vMFrzaCER3d7Jg3nBM8DT6vKrrf5gkP7FpC18mU6", // USDT
 ]);
 
-export const DEFAULT_LIMIT = 100;
-export const MAX_LIMIT = 200;
+export const DEFAULT_LIMIT = 25;
+export const MAX_LIMIT = 100;

@@ -98,7 +98,10 @@ export function parseTransaction(tx: ParsedTransactionWithMeta, walletAddress: s
 
   const tokenChanges = buildTokenDiffs(tx, walletAddress);
   const solChange = walletSolDelta(tx, walletAddress);
-  if (Math.abs(solChange) > 0) {
+  // Only count a SOL leg if the net change is substantial enough to be a real transfer/swap leg.
+  // Sub-threshold amounts are just transaction fees and should be ignored.
+  const SOL_DUST_THRESHOLD = 0.001;
+  if (Number.isFinite(solChange) && Math.abs(solChange) >= SOL_DUST_THRESHOLD) {
     tokenChanges.push({
       mint: SOL_MINT,
       symbol: "SOL",

@@ -106,8 +106,25 @@ export async function getTransaction(signature: string): Promise<ParsedTransacti
   return tx;
 }
 
+const TX_BATCH_SIZE = 5;
+const TX_BATCH_DELAY_MS = 150;
+
+/** Fetch transactions in small sequential batches to avoid overwhelming the public RPC. */
 export async function getWalletTransactions(address: string, limit: number): Promise<ParsedTransactionWithMeta[]> {
   const signatures = await getSignaturesForAddress(address, limit);
-  const txs = await Promise.all(signatures.map((item) => getTransaction(item.signature)));
-  return txs.filter((item): item is ParsedTransactionWithMeta => Boolean(item?.meta));
+  const results: ParsedTransactionWithMeta[] = [];
+
+  for (let i = 0; i < signatures.length; i += TX_BATCH_SIZE) {
+    const batch = signatures.slice(i, i + TX_BATCH_SIZE);
+    const batchResults = await Promise.all(batch.map((item) => getTransaction(item.signature)));
+    for (const tx of batchResults) {
+      if (tx?.meta) results.push(tx);
+    }
+    // Small delay between batches to stay within public RPC rate limits.
+    if (i + TX_BATCH_SIZE < signatures.length) {
+      await new Promise((resolve) => setTimeout(resolve, TX_BATCH_DELAY_MS));
+    }
+  }
+
+  return results;
 }

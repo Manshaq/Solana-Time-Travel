@@ -65,6 +65,7 @@ export function buildTimeline(transactions: ParsedTransaction[]): TimelineEvent[
 export async function buildPnl(transactions: ParsedTransaction[]): Promise<{
   totalPnlUsd: number;
   perTokenPnl: TokenPnLItem[];
+  prices: Record<string, number>;
 }> {
   const swaps = transactions.filter((tx) => tx.type === "swap");
   const mints = swaps.flatMap((tx) => [tx.token_in, tx.token_out]).filter((m): m is string => Boolean(m));
@@ -143,7 +144,7 @@ export async function buildPnl(transactions: ParsedTransaction[]): Promise<{
   });
 
   const totalPnlUsd = perTokenPnl.reduce((acc, t) => acc + t.totalPnlUsd, 0);
-  return { totalPnlUsd, perTokenPnl };
+  return { totalPnlUsd, perTokenPnl, prices };
 }
 
 export async function buildPortfolio(transactions: ParsedTransaction[]): Promise<
@@ -156,10 +157,9 @@ export async function buildPortfolio(transactions: ParsedTransaction[]): Promise
     valueUsd: number;
   }>
 > {
-  const pnl = await buildPnl(transactions);
-  const mints = pnl.perTokenPnl.map((token) => token.mint);
-  const prices = await getTokenPrices(mints);
-  return pnl.perTokenPnl
+  // Reuse prices already fetched inside buildPnl — no second network round-trip.
+  const { perTokenPnl, prices } = await buildPnl(transactions);
+  return perTokenPnl
     .filter((token) => token.qtyHeld > 0)
     .map((token) => {
       const priceUsd = prices[token.mint] || 0;
