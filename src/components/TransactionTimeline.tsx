@@ -76,9 +76,9 @@ export function TransactionTimeline({ transactions, loading, missedGains = [] }:
       return (
         <div className="flex items-center gap-1">
           <span className="font-bold">Swap</span>
-          <span className="opacity-60">{tx.symbol_in}</span>
+          <span className="opacity-60">{String(tx.symbol_in || "Unknown")}</span>
           <ArrowRight className="w-3 h-3 opacity-40" />
-          <span className="opacity-60">{tx.symbol_out}</span>
+          <span className="opacity-60">{String(tx.symbol_out || "Unknown")}</span>
         </div>
       );
     }
@@ -87,21 +87,21 @@ export function TransactionTimeline({ transactions, loading, missedGains = [] }:
         return (
           <div className="flex items-center gap-1">
             <span className="font-bold">Sent</span>
-            <span className="opacity-60">{tx.symbol_in || "SOL"}</span>
+            <span className="opacity-60">{String(tx.symbol_in || "SOL")}</span>
           </div>
         );
       }
       return (
         <div className="flex items-center gap-1">
           <span className="font-bold">Received</span>
-          <span className="opacity-60">{tx.symbol_out || "SOL"}</span>
+          <span className="opacity-60">{String(tx.symbol_out || "SOL")}</span>
         </div>
       );
     }
     if (tx.type === "nft") {
       return <span className="font-bold">NFT Interaction</span>;
     }
-    return <span className="font-bold uppercase">{(tx.type || "unknown").replace(/_/g, ' ')}</span>;
+    return <span className="font-bold uppercase">{String(tx.type || "unknown").replace(/_/g, ' ')}</span>;
   };
 
   const getIcon = (tx: Transaction) => {
@@ -151,7 +151,7 @@ export function TransactionTimeline({ transactions, loading, missedGains = [] }:
               filteredTransactions.map((tx) => (
                 <TableRow key={tx.signature} className="hover-invert border-b border-[var(--line)]/20 group">
                   <TableCell className="technical-value text-[10px]">
-                    {new Date(tx.timestamp * 1000).toLocaleString()}
+                    {tx.timestamp ? new Date(Number(tx.timestamp) * 1000).toLocaleString() : "Unknown Time"}
                   </TableCell>
                   <TableCell className="technical-value text-[10px] max-w-[300px]">
                     <div className="flex flex-col gap-1">
@@ -160,29 +160,29 @@ export function TransactionTimeline({ transactions, loading, missedGains = [] }:
                         {getActionText(tx)}
                         {getBadges(tx)}
                       </div>
-                      <span className="opacity-60 line-clamp-1 text-[9px]">{tx.description || "No description available"}</span>
+                      <span className="opacity-60 line-clamp-1 text-[9px]">{String(tx.description || "No description available")}</span>
                     </div>
                   </TableCell>
                   <TableCell className="technical-value text-[10px]">
                     {tx.type === "swap" ? (
                       <div className="flex flex-col">
-                        <span className="text-red-500">-{Number(tx.amount_in || 0).toFixed(4)} {tx.symbol_in}</span>
-                        <span className="text-green-500">+{Number(tx.amount_out || 0).toFixed(4)} {tx.symbol_out}</span>
+                        <span className="text-red-500">-{Number(tx.amount_in || 0).toFixed(4)} {String(tx.symbol_in || "")}</span>
+                        <span className="text-green-500">+{Number(tx.amount_out || 0).toFixed(4)} {String(tx.symbol_out || "")}</span>
                       </div>
                     ) : (tx.amount_in || 0) > 0 ? (
-                      <span className="text-red-500">-{Number(tx.amount_in || 0).toFixed(4)} {tx.symbol_in || "SOL"}</span>
+                      <span className="text-red-500">-{Number(tx.amount_in || 0).toFixed(4)} {String(tx.symbol_in || "SOL")}</span>
                     ) : (
-                      <span className="text-green-500">+{Number(tx.amount_out || 0).toFixed(4)} {tx.symbol_out || "SOL"}</span>
+                      <span className="text-green-500">+{Number(tx.amount_out || 0).toFixed(4)} {String(tx.symbol_out || "SOL")}</span>
                     )}
                   </TableCell>
                   <TableCell className="text-right">
                     <a 
-                      href={`https://solscan.io/tx/${tx.signature}`} 
+                      href={`https://solscan.io/tx/${String(tx.signature || "")}`} 
                       target="_blank" 
                       rel="noreferrer"
                       className="inline-flex items-center technical-value text-[10px] opacity-40 hover:opacity-100"
                     >
-                      {(tx.signature || "UNKNOWN_SIG").slice(0, 6)}...{(tx.signature || "").slice(-4)}
+                      {String(tx.signature || "UNKNOWN").slice(0, 6)}...{String(tx.signature || "").slice(-4)}
                       <ExternalLink className="w-3 h-3 ml-1" />
                     </a>
                   </TableCell>

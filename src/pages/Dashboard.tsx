@@ -140,7 +140,7 @@ export default function Dashboard() {
             <ArrowLeft className="w-3 h-3 mr-1" /> Back to Search
           </Link>
           <h1 className="text-2xl sm:text-3xl font-serif italic">Wallet Analysis</h1>
-          <p className="text-[10px] sm:text-xs font-mono opacity-60 truncate max-w-full md:max-w-none">{address}</p>
+          <p className="text-[10px] sm:text-xs font-mono opacity-60 truncate max-w-full md:max-w-none">{String(address || "")}</p>
         </div>
         <div className="flex gap-4 sm:gap-8 w-full md:w-auto justify-between md:justify-end">
           <div className="text-left md:text-right">
@@ -291,7 +291,7 @@ export default function Dashboard() {
                   <div key={gain.token} className="technical-cell border-red-500/20 bg-red-500/5 space-y-3">
                     <div className="flex justify-between items-start">
                       <div>
-                        <p className="technical-value font-bold">{gain.symbol}</p>
+                        <p className="technical-value font-bold">{String(gain.symbol || "")}</p>
                         <p className="text-[10px] uppercase tracking-widest opacity-40">Sold too early</p>
                       </div>
                       <Badge variant="outline" className="rounded-none border-red-500 text-red-500 text-[8px] uppercase">
@@ -337,8 +337,8 @@ export default function Dashboard() {
                 <div key={item.address} className="technical-cell hover-invert group">
                   <div className="flex justify-between items-start">
                     <div>
-                      <p className="technical-value font-bold">{item.symbol || "UNKNOWN"}</p>
-                      <p className="text-[10px] uppercase tracking-widest opacity-40 group-hover:opacity-100">{item.name || "Unknown Token"}</p>
+                      <p className="technical-value font-bold">{String(item.symbol || "UNKNOWN")}</p>
+                      <p className="text-[10px] uppercase tracking-widest opacity-40 group-hover:opacity-100">{String(item.name || "Unknown Token")}</p>
                     </div>
                     <div className="text-right">
                       <p className="technical-value">${Number(item.valueUsd || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
