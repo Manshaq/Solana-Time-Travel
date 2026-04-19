@@ -72,44 +72,50 @@ export function PnLChart({ transactions, loading }: PnLChartProps) {
           {Number(chartData[chartData.length - 1]?.pnl || 0) >= 0 ? '+' : ''}{Number(chartData[chartData.length - 1]?.pnl || 0).toFixed(2)}%
         </p>
       </div>
-      <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={chartData}>
-          <defs>
-            <linearGradient id="colorPnL" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#700143" stopOpacity={0.3}/>
-              <stop offset="95%" stopColor="#700143" stopOpacity={0}/>
-            </linearGradient>
-          </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(112, 1, 67, 0.1)" vertical={false} />
-          <XAxis 
-            dataKey="time" 
-            hide 
-          />
-          <YAxis 
-            hide 
-            domain={['auto', 'auto']}
-          />
-          <Tooltip 
-            contentStyle={{ 
-              backgroundColor: '#F8EDAD', 
-              border: '1px solid #700143',
-              borderRadius: '0px',
-              fontSize: '10px',
-              fontFamily: 'monospace'
-            }}
-            itemStyle={{ color: '#700143' }}
-          />
-          <Area 
-            type="monotone" 
-            dataKey="pnl" 
-            stroke="#700143" 
-            fillOpacity={1} 
-            fill="url(#colorPnL)" 
-            strokeWidth={2}
-            animationDuration={2000}
-          />
-        </AreaChart>
-      </ResponsiveContainer>
+      {chartData.length >= 2 ? (
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={chartData}>
+            <defs>
+              <linearGradient id="colorPnL" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#700143" stopOpacity={0.3}/>
+                <stop offset="95%" stopColor="#700143" stopOpacity={0}/>
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(112, 1, 67, 0.1)" vertical={false} />
+            <XAxis 
+              dataKey="time" 
+              hide 
+            />
+            <YAxis 
+              hide 
+              domain={['auto', 'auto']}
+            />
+            <Tooltip 
+              contentStyle={{ 
+                backgroundColor: '#F8EDAD', 
+                border: '1px solid #700143',
+                borderRadius: '0px',
+                fontSize: '10px',
+                fontFamily: 'monospace'
+              }}
+              itemStyle={{ color: '#700143' }}
+            />
+            <Area 
+              type="monotone" 
+              dataKey="pnl" 
+              stroke="#700143" 
+              fillOpacity={1} 
+              fill="url(#colorPnL)" 
+              strokeWidth={2}
+              animationDuration={2000}
+            />
+          </AreaChart>
+        </ResponsiveContainer>
+      ) : (
+        <div className="flex h-full w-full items-center justify-center">
+          <p className="text-[10px] uppercase tracking-widest opacity-40">Insufficient transaction volume to map timeline</p>
+        </div>
+      )}
     </div>
   );
 }
